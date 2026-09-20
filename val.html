@@ -15,11 +15,11 @@
         .tier-section { display: flex; flex-direction: column; gap: 15px; width: fit-content; align-items: center; }
         .tier-title { font-size: 28px; font-weight: bold; color: #fff; text-transform: lowercase; text-align: center; }
         
-        /* Сетка с ограничением в 3 бокса по горизонтали */
-        .boxes-container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 840px; }
+        /* Увеличили максимальную ширину сетки под широкие карточки (по 2 в ряд для такой ширины идеально) */
+        .boxes-container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 1200px; }
         
-        /* Большие боксы */
-        .box { width: 260px; height: 130px; background: #222; border: 1px solid #333; border-radius: 8px; }
+        /* Сделали боксы длиннее в ширину */
+        .box { width: 380px; height: 130px; background: #222; border: 1px solid #333; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -35,7 +35,7 @@
         <a href="#" class="sidebar-item">Commons</a>
     </aside>
     <main>
-        <!-- Tier 3 (6 боксов: 3 сверху, 3 снизу) -->
+        <!-- Tier 3 -->
         <div class="tier-section">
             <div class="tier-title">tier 3</div>
             <div class="boxes-container">
@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <!-- Tier 2 (5 боксов: 3 сверху, 2 снизу) -->
+        <!-- Tier 2 -->
         <div class="tier-section">
             <div class="tier-title">tier 2</div>
             <div class="boxes-container">
@@ -60,7 +60,7 @@
             </div>
         </div>
 
-        <!-- Tier 1 (теперь тоже по сетке) -->
+        <!-- Tier 1 -->
         <div class="tier-section">
             <div class="tier-title">tier 1</div>
             <div class="boxes-container">
