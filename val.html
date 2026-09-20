@@ -10,13 +10,16 @@
         .sidebar-item { color: #ccc; text-decoration: none; padding: 8px 0; font-size: 14px; transition: color 0.2s; display: block; }
         .sidebar-item:hover { color: #fff; }
         
-        main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 40px; gap: 40px; overflow-y: auto; }
+        /* Изменили здесь: выравнивание по центру (align-items: center) */
+        main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; gap: 40px; overflow-y: auto; }
         
-        .tier-section { display: flex; flex-direction: column; gap: 15px; }
-        .tier-title { font-size: 28px; font-weight: bold; color: #fff; text-transform: lowercase; }
+        .tier-section { display: flex; flex-direction: column; gap: 15px; width: fit-content; }
+        .tier-title { font-size: 28px; font-weight: bold; color: #fff; text-transform: lowercase; text-align: center; }
         
-        .boxes-container { display: flex; gap: 15px; flex-wrap: wrap; }
-        .box { width: 120px; height: 90px; background: #222; border: 1px solid #333; border-radius: 8px; }
+        .boxes-container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        
+        /* Увеличили размеры боксов */
+        .box { width: 220px; height: 110px; background: #222; border: 1px solid #333; border-radius: 8px; }
     </style>
 </head>
 <body>
