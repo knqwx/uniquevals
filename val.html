@@ -4,24 +4,96 @@
     <meta charset="UTF-8">
     <title>MM2 Aggregator</title>
     <style>
-        body { background: #1a1a1a; color: #fff; font-family: Arial, sans-serif; margin: 0; display: flex; height: 100vh; }
-        aside { width: 220px; background: #141414; border-right: 1px solid #2c2c2c; padding: 20px; display: flex; flex-direction: column; }
+        body { background: #1a1a1a; color: #fff; font-family: Arial, sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        aside { width: 220px; background: #141414; border-right: 1px solid #2c2c2c; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; }
         .sidebar-title { font-size: 14px; font-weight: bold; color: #888; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
-        .sidebar-item { color: #ccc; text-decoration: none; padding: 10px 0; }
-        .sidebar-item:hover { color: #fff; }
-        main { flex: 1; display: flex; justify-content: center; padding-top: 40px; }
-        h1 { font-size: 24px; margin: 0; text-transform: lowercase; }
+        .sidebar-item { color: #ccc; text-decoration: none; padding: 10px 0; display: block; cursor: pointer; transition: color 0.2s; }
+        .sidebar-item:hover, .sidebar-item.active { color: #fff; }
+        main { flex: 1; display: flex; flex-direction: column; padding: 40px; overflow-y: auto; }
+        h1 { font-size: 24px; margin: 0 0 30px 0; text-transform: lowercase; }
+        
+        /* Стили для таблицы предметов */
+        .table-container { background: #222; border: 1px solid #333; border-radius: 8px; overflow: hidden; max-width: 800px; display: none; }
+        .table-container.active { display: block; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px 16px; border-bottom: 1px solid #333; font-size: 14px; }
+        th { background: #1c1c1c; color: #888; font-weight: bold; text-transform: uppercase; font-size: 12px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: #262626; }
+        .supreme-price { color: #4CAF50; font-weight: bold; }
+        .avg-price { color: #ff9800; font-weight: bold; }
     </style>
 </head>
 <body>
     <aside>
         <div class="sidebar-title">Menu</div>
-        <a href="#" class="sidebar-item">Values</a>
-        <a href="#" class="sidebar-item">Compare</a>
-        <a href="#" class="sidebar-item">Settings</a>
+        <a class="sidebar-item active" onclick="switchTab('values')">Values</a>
+        <a class="sidebar-item" onclick="switchTab('compare')">Compare</a>
+        <a class="sidebar-item" onclick="switchTab('settings')">Settings</a>
     </aside>
+    
     <main>
         <h1>unique values</h1>
+
+        <!-- Вкладка Values с предметами Supreme -->
+        <div id="values-tab" class="table-container active">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Supreme Values</th>
+                        <th>MM2Values (Demo)</th>
+                        <th>Average</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Chroma Bauble</td>
+                        <td class="supreme-price">48,500</td>
+                        <td>47,000</td>
+                        <td class="avg-price">47,750</td>
+                    </tr>
+                    <tr>
+                        <td>Chroma Constellation</td>
+                        <td class="supreme-price">34,000</td>
+                        <td>33,000</td>
+                        <td class="avg-price">33,500</td>
+                    </tr>
+                    <tr>
+                        <td>Evergun</td>
+                        <td class="supreme-price">7,500</td>
+                        <td>7,200</td>
+                        <td class="avg-price">7,350</td>
+                    </tr>
+                    <tr>
+                        <td>Chroma Luger</td>
+                        <td class="supreme-price">650</td>
+                        <td>600</td>
+                        <td class="avg-price">625</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Заглушки для других вкладок -->
+        <div id="compare-tab" class="table-container" style="padding: 20px; color: #888;">
+            Comparison feature coming soon...
+        </div>
+        <div id="settings-tab" class="table-container" style="padding: 20px; color: #888;">
+            Settings panel coming soon...
+        </div>
     </main>
+
+    <script>
+        function switchTab(tabName) {
+            // Переключение активных пунктов меню
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Переключение таблиц/контента
+            document.querySelectorAll('.table-container').forEach(cont => cont.classList.remove('active'));
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+    </script>
 </body>
 </html>
