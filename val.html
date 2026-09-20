@@ -10,16 +10,16 @@
         .sidebar-item { color: #ccc; text-decoration: none; padding: 8px 0; font-size: 14px; transition: color 0.2s; display: block; }
         .sidebar-item:hover { color: #fff; }
         
-        /* Изменили здесь: выравнивание по центру (align-items: center) */
         main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; gap: 40px; overflow-y: auto; }
         
-        .tier-section { display: flex; flex-direction: column; gap: 15px; width: fit-content; }
+        .tier-section { display: flex; flex-direction: column; gap: 15px; width: fit-content; align-items: center; }
         .tier-title { font-size: 28px; font-weight: bold; color: #fff; text-transform: lowercase; text-align: center; }
         
-        .boxes-container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        /* Сетка с ограничением в 3 бокса по горизонтали */
+        .boxes-container { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 840px; }
         
-        /* Увеличили размеры боксов */
-        .box { width: 220px; height: 110px; background: #222; border: 1px solid #333; border-radius: 8px; }
+        /* Большие боксы */
+        .box { width: 260px; height: 130px; background: #222; border: 1px solid #333; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -35,7 +35,7 @@
         <a href="#" class="sidebar-item">Commons</a>
     </aside>
     <main>
-        <!-- Tier 3 (выше всех, 6 боксов) -->
+        <!-- Tier 3 (6 боксов: 3 сверху, 3 снизу) -->
         <div class="tier-section">
             <div class="tier-title">tier 3</div>
             <div class="boxes-container">
@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <!-- Tier 2 (5 боксов) -->
+        <!-- Tier 2 (5 боксов: 3 сверху, 2 снизу) -->
         <div class="tier-section">
             <div class="tier-title">tier 2</div>
             <div class="boxes-container">
@@ -60,7 +60,7 @@
             </div>
         </div>
 
-        <!-- Tier 1 (2 бокса) -->
+        <!-- Tier 1 (теперь тоже по сетке) -->
         <div class="tier-section">
             <div class="tier-title">tier 1</div>
             <div class="boxes-container">
