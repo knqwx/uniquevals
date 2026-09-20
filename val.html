@@ -4,13 +4,19 @@
     <meta charset="UTF-8">
     <title>MM2 Aggregator</title>
     <style>
-        body { background: #1a1a1a; color: #fff; font-family: Arial, sans-serif; margin: 0; display: flex; height: 100vh; }
+        body { background: #1a1a1a; color: #fff; font-family: Arial, sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         aside { width: 220px; background: #141414; border-right: 1px solid #2c2c2c; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; }
         .sidebar-title { font-size: 14px; font-weight: bold; color: #888; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
         .sidebar-item { color: #ccc; text-decoration: none; padding: 8px 0; font-size: 14px; transition: color 0.2s; display: block; }
         .sidebar-item:hover { color: #fff; }
-        main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
-        .tier-item { font-size: 28px; font-weight: bold; color: #fff; text-transform: lowercase; }
+        
+        main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 40px; gap: 40px; overflow-y: auto; }
+        
+        .tier-section { display: flex; flex-direction: column; gap: 15px; }
+        .tier-title { font-size: 28px; font-weight: bold; color: #fff; text-transform: lowercase; }
+        
+        .boxes-container { display: flex; gap: 15px; flex-wrap: wrap; }
+        .box { width: 120px; height: 90px; background: #222; border: 1px solid #333; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -26,9 +32,39 @@
         <a href="#" class="sidebar-item">Commons</a>
     </aside>
     <main>
-        <div class="tier-item">tier 3</div>
-        <div class="tier-item">tier 2</div>
-        <div class="tier-item">tier 1</div>
+        <!-- Tier 3 (выше всех, 6 боксов) -->
+        <div class="tier-section">
+            <div class="tier-title">tier 3</div>
+            <div class="boxes-container">
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+        </div>
+
+        <!-- Tier 2 (5 боксов) -->
+        <div class="tier-section">
+            <div class="tier-title">tier 2</div>
+            <div class="boxes-container">
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+        </div>
+
+        <!-- Tier 1 (2 бокса) -->
+        <div class="tier-section">
+            <div class="tier-title">tier 1</div>
+            <div class="boxes-container">
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+        </div>
     </main>
 </body>
 </html>
