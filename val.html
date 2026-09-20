@@ -5,17 +5,20 @@
     <title>MM2 Aggregator</title>
     <style>
         body { background: #1a1a1a; color: #fff; font-family: Arial, sans-serif; margin: 0; display: flex; height: 100vh; }
-        aside { width: 220px; background: #141414; border-right: 1px solid #2c2c2c; padding: 20px; display: flex; flex-direction: column; }
+        aside { width: 220px; background: #141414; border-right: 1px solid #2c2c2c; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; }
         .sidebar-title { font-size: 14px; font-weight: bold; color: #888; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
         .sidebar-item { color: #ccc; text-decoration: none; padding: 8px 0; font-size: 14px; transition: color 0.2s; display: block; }
         .sidebar-item:hover { color: #fff; }
+        main { flex: 1; display: flex; flex-direction: column; padding: 40px; gap: 15px; }
+        h1 { font-size: 24px; margin: 0 0 10px 0; text-transform: lowercase; }
+        .tier-item { background: #222; border: 1px solid #333; padding: 15px; border-radius: 6px; width: fit-content; min-width: 150px; }
     </style>
 </head>
 <body>
     <aside>
         <div class="sidebar-title">Categories</div>
-        <a href="#" class="sidebar-item">Ancient</a>
-        <a href="#" class="sidebar-item">Chroma</a>
+        <a href="#" class="sidebar-item">Ancients</a>
+        <a href="#" class="sidebar-item">Chromas</a>
         <a href="#" class="sidebar-item">Godlies</a>
         <a href="#" class="sidebar-item">Vintages</a>
         <a href="#" class="sidebar-item">Legendaries</a>
@@ -23,5 +26,11 @@
         <a href="#" class="sidebar-item">Uncommons</a>
         <a href="#" class="sidebar-item">Commons</a>
     </aside>
+    <main>
+        <h1>ancients</h1>
+        <div class="tier-item">tier 3</div>
+        <div class="tier-item">tier 2</div>
+        <div class="tier-item">tier 1</div>
+    </main>
 </body>
 </html>
