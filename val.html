@@ -12,10 +12,30 @@
             display: flex; 
             height: 100vh; 
             overflow: hidden; 
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Большой прямоугольник по центру */
+        .main-card {
+            width: 800px;
+            height: 500px;
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body>
-    
+    <div class="main-card">
+        <!-- Здесь будет содержимое прямоугольника -->
+    </div>
 </body>
 </html>
