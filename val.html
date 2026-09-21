@@ -23,19 +23,74 @@
             background: #222;
             border: 1px solid #333;
             border-radius: 12px;
-            padding: 30px;
+            padding: 40px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            gap: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Стили для текста */
+        .item-name {
+            font-size: 36px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .item-value-container {
+            font-size: 24px;
+            color: #aaa;
+        }
+
+        .item-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .loading {
+            color: #888;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
     <div class="main-card">
-        <!-- Здесь будет содержимое прямоугольника -->
+        <div class="item-name">Gingerscope</div>
+        <div class="item-value-container">
+            Value: <span id="supreme-value" class="item-value loading">Загрузка с Supreme Values...</span>
+        </div>
     </div>
+
+    <script>
+        // Функция, которая имитирует получение актуальной цены с Supreme Values
+        async function fetchSupremeValues() {
+            const valueSpan = document.getElementById('supreme-value');
+            
+            try {
+                // Здесь в будущем будет твой реальный запрос к серверу-парсеру, 
+                // который забирает данные с https://supremevalues.com/
+                
+                // Имитируем задержку сети (как будто парсим сайт)
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Допустим, парсер вернул оттуда цену:
+                const fetchedValue = "15,750"; 
+                
+                // Выводим цену на экран
+                valueSpan.textContent = fetchedValue;
+                valueSpan.classList.remove('loading');
+                
+            } catch (error) {
+                valueSpan.textContent = "Ошибка загрузки";
+                valueSpan.style.color = "#f44336";
+            }
+        }
+
+        // Запускаем получение данных при загрузке страницы
+        fetchSupremeValues();
+    </script>
 </body>
 </html>
