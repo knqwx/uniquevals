@@ -19,30 +19,22 @@ async function updateValues() {
     let browser;
     try {
         browser = await puppeteer.launch({ 
-            headless: true, // Можешь поставить false, чтобы проверить глазами
+            headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         
         const page = await browser.newPage();
         
-        // Переходим сразу на страницу с анциентами, где точно есть Gingerscope
         await page.goto('https://supremevalues.com/mm2/ancients', { 
             waitUntil: 'networkidle2',
             timeout: 60000 
         });
         
-        // Ждем прогрузки элементов с ценами
         await page.waitForSelector('.itemvalue.val-top', { timeout: 15000 });
         
-        // Нам нужно найти именно Gingerscope (так как на странице может быть несколько анциентов)
         const gingerscopePrice = await page.evaluate(() => {
-            // Ищем все блоки с предметами
-            const items = document.querySelectorAll('tr, .item-box, div'); // или пройдемся по структуре
-            
-            // Пробегаем по элементам и ищем тот, где название "Gingerscope"
             for (let el of document.querySelectorAll('div')) {
                 if (el.textContent && el.textContent.includes('Gingerscope')) {
-                    // Ищем внутри этого же блока цену с классом itemvalue val-top
                     const parent = el.closest('tr') || el.parentElement;
                     const priceEl = parent ? parent.querySelector('.itemvalue.val-top') : null;
                     if (priceEl) {
@@ -50,8 +42,6 @@ async function updateValues() {
                     }
                 }
             }
-            
-            // Запасной вариант, если структура проще: берем первый попавшийся, но лучше точный поиск выше
             const fallbackEl = document.querySelector('.itemvalue.val-top');
             return fallbackEl ? fallbackEl.textContent.trim() : null;
         });
@@ -73,13 +63,19 @@ async function updateValues() {
     }
 }
 
-updateValues();
+// 1. Сначала парсим данные ПЕРЕД запуск сервера
+(async () => {
+    await updateValues();
+    
+    // 2. Только после первого успешного парсинга запускаем сервер
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+})();
+
+// Затем обновляем каждые 5 минут в фоне
 setInterval(updateValues, 5 * 60 * 1000);
 
 app.get('/api/values', (req, res) => {
     res.json(cachedData);
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
 });
