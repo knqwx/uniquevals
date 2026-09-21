@@ -65,11 +65,7 @@
     <script>
         async function fetchRealValue() {
             const valueSpan = document.getElementById('supreme-value');
-            
-            // Целевой сайт, откуда берем данные
             const targetUrl = 'https://supremevalues.com/'; 
-            
-            // Используем публичный CORS-прокси, чтобы обойти блокировку браузера
             const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
 
             try {
@@ -77,18 +73,18 @@
                 const data = await response.json();
                 
                 if (data.contents) {
-                    // data.contents — это HTML-код страницы Supreme Values.
-                    // Здесь можно парсить HTML через DOMParser, чтобы найти цену Gingerscope.
-                    
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(data.contents, 'text/html');
                     
-                    // Пример поиска элемента с ценой (селектор нужно будет настроить под реальную верстку сайта)
-                    // const priceElement = doc.querySelector('.item-price-class'); 
+                    // Ищем элемент по классу, который ты нашел на скриншоте
+                    const priceElement = doc.querySelector('.itemvalue.val-top'); 
                     
-                    // Для теста выведем статус, что данные реально скачались:
-                    valueSpan.textContent = "Connected (Needs parser selector)";
-                    valueSpan.classList.remove('loading');
+                    if (priceElement) {
+                        valueSpan.textContent = priceElement.textContent;
+                        valueSpan.classList.remove('loading');
+                    } else {
+                        valueSpan.textContent = "Price tag not found";
+                    }
                 } else {
                     throw new Error('No data');
                 }
