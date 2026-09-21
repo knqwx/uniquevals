@@ -65,28 +65,17 @@
     <script>
         async function fetchRealValue() {
             const valueSpan = document.getElementById('supreme-value');
-            const targetUrl = 'https://supremevalues.com/'; 
-            const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
 
             try {
-                const response = await fetch(https://uniquevals-api.onrender.com/api/values);
+                // Запрос к твоему облачному серверу на Render
+                const response = await fetch('https://uniquevals-api.onrender.com/api/values');
                 const data = await response.json();
                 
-                if (data.contents) {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(data.contents, 'text/html');
-                    
-                    // Ищем элемент по классу, который ты нашел на скриншоте
-                    const priceElement = doc.querySelector('.itemvalue.val-top'); 
-                    
-                    if (priceElement) {
-                        valueSpan.textContent = priceElement.textContent;
-                        valueSpan.classList.remove('loading');
-                    } else {
-                        valueSpan.textContent = "Price tag not found";
-                    }
+                if (data.gingerscope) {
+                    valueSpan.textContent = data.gingerscope;
+                    valueSpan.classList.remove('loading');
                 } else {
-                    throw new Error('No data');
+                    valueSpan.textContent = "Price not found";
                 }
             } catch (error) {
                 valueSpan.textContent = "Failed to fetch";
@@ -95,7 +84,11 @@
             }
         }
 
+        // Запускаем при загрузке страницы
         fetchRealValue();
+        
+        // Автоматически обновляем данные на сайте каждые 30 секунд
+        setInterval(fetchRealValue, 30000);
     </script>
 </body>
 </html>
