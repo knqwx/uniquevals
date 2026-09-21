@@ -16,7 +16,6 @@
             align-items: center;
         }
 
-        /* Большой прямоугольник по центру */
         .main-card {
             width: 800px;
             height: 500px;
@@ -33,7 +32,6 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
-        /* Стили для текста */
         .item-name {
             font-size: 36px;
             font-weight: bold;
@@ -60,37 +58,48 @@
     <div class="main-card">
         <div class="item-name">Gingerscope</div>
         <div class="item-value-container">
-            Value: <span id="supreme-value" class="item-value loading">Загрузка с Supreme Values...</span>
+            Value: <span id="supreme-value" class="item-value loading">Fetching from Supreme Values...</span>
         </div>
     </div>
 
     <script>
-        // Функция, которая имитирует получение актуальной цены с Supreme Values
-        async function fetchSupremeValues() {
+        async function fetchRealValue() {
             const valueSpan = document.getElementById('supreme-value');
             
+            // Целевой сайт, откуда берем данные
+            const targetUrl = 'https://supremevalues.com/'; 
+            
+            // Используем публичный CORS-прокси, чтобы обойти блокировку браузера
+            const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+
             try {
-                // Здесь в будущем будет твой реальный запрос к серверу-парсеру, 
-                // который забирает данные с https://supremevalues.com/
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
                 
-                // Имитируем задержку сети (как будто парсим сайт)
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Допустим, парсер вернул оттуда цену:
-                const fetchedValue = "15,750"; 
-                
-                // Выводим цену на экран
-                valueSpan.textContent = fetchedValue;
-                valueSpan.classList.remove('loading');
-                
+                if (data.contents) {
+                    // data.contents — это HTML-код страницы Supreme Values.
+                    // Здесь можно парсить HTML через DOMParser, чтобы найти цену Gingerscope.
+                    
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.contents, 'text/html');
+                    
+                    // Пример поиска элемента с ценой (селектор нужно будет настроить под реальную верстку сайта)
+                    // const priceElement = doc.querySelector('.item-price-class'); 
+                    
+                    // Для теста выведем статус, что данные реально скачались:
+                    valueSpan.textContent = "Connected (Needs parser selector)";
+                    valueSpan.classList.remove('loading');
+                } else {
+                    throw new Error('No data');
+                }
             } catch (error) {
-                valueSpan.textContent = "Ошибка загрузки";
+                valueSpan.textContent = "Failed to fetch";
                 valueSpan.style.color = "#f44336";
+                console.error(error);
             }
         }
 
-        // Запускаем получение данных при загрузке страницы
-        fetchSupremeValues();
+        fetchRealValue();
     </script>
 </body>
 </html>
