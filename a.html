@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Release Task Tracker</title>
+    <!-- Tailwind CSS for modern, responsive UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        grayTheme: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            cardHover: '#334155',
+                            border: '#334155',
+                            text: '#f8fafc',
+                            muted: '#94a3b8'
+                        },
+                        whiteTheme: {
+                            bg: '#f1f5f9',
+                            card: '#ffffff',
+                            cardHover: '#f8fafc',
+                            border: '#cbd5e1',
+                            text: '#1e293b',
+                            muted: '#64748b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons for clean visual indicators -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for clean appearance */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #64748b55;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b88;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300" id="body-element">
+
+    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-30 shadow-sm transition-colors duration-300" id="header-element">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                    <i data-lucide="check-square" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight" id="header-title">Production Release Manager</h1>
+                    <p class="text-xs text-slate-400">Track, filter, and manage all security, legal, reliability & feature requirements</p>
+                </div>
+            </div>
+            
+            <!-- Global Stats, Theme Switcher & Quick Actions -->
+            <div class="flex items-center space-x-3 w-full md:w-auto justify-end flex-wrap gap-2">
+                <!-- Theme Switcher Button -->
+                <button onclick="toggleTheme()" id="theme-toggle-btn" class="px-3 py-1.5 text-xs font-medium bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition border border-slate-600 flex items-center gap-1.5 shadow-sm">
+                    <i id="theme-icon" data-lucide="moon" class="w-3.5 h-3.5"></i> <span id="theme-text">White Theme</span>
+                </button>
+                <button onclick="resetAllTasks()" class="px-3 py-1.5 text-xs font-medium text-slate-300 bg-slate-700 hover:bg-slate-600 rounded-lg transition border border-slate-600 flex items-center gap-1.5">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Progress
+                </button>
+                <button onclick="exportData()" class="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-sm flex items-center gap-1.5">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Export JSON
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 w-full">
+        <div class="bg-slate-800/90 backdrop-blur rounded-2xl p-6 border border-slate-700/60 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-6 transition-colors duration-300" id="stats-card">
+            <!-- Progress Percentage -->
+            <div class="flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Overall Completion</span>
+                    <span id="percent-text" class="text-sm font-bold text-indigo-400">0%</span>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
+                    <div id="progress-bar" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <span id="counts-text" class="text-xs text-slate-400 mt-2">0 of 0 tasks completed</span>
+            </div>
+
+            <!-- Status Breakdown -->
+            <div class="flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-700 pt-4 md:pt-0 md:pl-6">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Status Breakdown</span>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2">
+                        <div id="todo-count" class="text-lg font-bold text-amber-400">0</div>
+                        <div class="text-[10px] text-amber-400 font-medium uppercase">To Do</div>
+                    </div>
+                    <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-2">
+                        <div id="progress-count" class="text-lg font-bold text-blue-400">0</div>
+                        <div class="text-[10px] text-blue-400 font-medium uppercase">In Progress</div>
+                    </div>
+                    <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2">
+                        <div id="done-count" class="text-lg font-bold text-emerald-400">0</div>
+                        <div class="text-[10px] text-emerald-400 font-medium uppercase">Done</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complexity Breakdown -->
+            <div class="flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-700 pt-4 md:pt-0 md:pl-6 col-span-1 md:col-span-2">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Complexity Distribution</span>
+                <div class="grid grid-cols-4 gap-2 text-center">
+                    <div class="bg-slate-700/50 border border-slate-600/50 rounded-xl p-2">
+                        <div id="comp-easy" class="text-sm font-bold text-slate-200">0</div>
+                        <div class="text-[10px] text-slate-400 font-medium uppercase">Easy</div>
+                    </div>
+                    <div class="bg-slate-700/50 border border-slate-600/50 rounded-xl p-2">
+                        <div id="comp-med" class="text-sm font-bold text-slate-200">0</div>
+                        <div class="text-[10px] text-slate-400 font-medium uppercase">Medium</div>
+                    </div>
+                    <div class="bg-slate-700/50 border border-slate-600/50 rounded-xl p-2">
+                        <div id="comp-hard" class="text-sm font-bold text-slate-200">0</div>
+                        <div class="text-[10px] text-slate-400 font-medium uppercase">Hard</div>
+                    </div>
+                    <div class="bg-slate-700/50 border border-slate-600/50 rounded-xl p-2">
+                        <div id="comp-expert" class="text-sm font-bold text-slate-200">0</div>
+                        <div class="text-[10px] text-slate-400 font-medium uppercase">Expert</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 w-full">
+        <div class="bg-slate-800/90 backdrop-blur rounded-2xl p-4 border border-slate-700/60 shadow-sm flex flex-col lg:flex-row gap-4 justify-between items-center transition-colors duration-300" id="controls-card">
+            
+            <!-- Search Box -->
+            <div class="relative w-full lg:w-80">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                </span>
+                <input type="text" id="search-input" oninput="filterTasks()" placeholder="Search task name or description..." 
+                    class="w-full pl-10 pr-4 py-2 bg-slate-900/60 border border-slate-700 text-slate-100 placeholder-slate-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-slate-900 transition">
+            </div>
+
+            <!-- Filters & Sorters -->
+            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
+                <!-- Category Filter -->
+                <div class="flex items-center space-x-1.5">
+                    <span class="text-xs font-medium text-slate-400 hidden sm:inline">Category:</span>
+                    <select id="category-filter" onchange="filterTasks()" class="bg-slate-900/60 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">All Categories</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="flex items-center space-x-1.5">
+                    <span class="text-xs font-medium text-slate-400 hidden sm:inline">Status:</span>
+                    <select id="status-filter" onchange="filterTasks()" class="bg-slate-900/60 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">All Statuses</option>
+                        <option value="todo">To Do</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+
+                <!-- Complexity Filter -->
+                <div class="flex items-center space-x-1.5">
+                    <span class="text-xs font-medium text-slate-400 hidden sm:inline">Complexity:</span>
+                    <select id="complexity-filter" onchange="filterTasks()" class="bg-slate-900/60 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">All Complexities</option>
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                        <option value="Expert">Expert</option>
+                    </select>
+                </div>
+
+                <!-- Complexity Sort -->
+                <div class="flex items-center space-x-1.5">
+                    <span class="text-xs font-medium text-slate-400 hidden sm:inline">Sort:</span>
+                    <select id="sort-select" onchange="filterTasks()" class="bg-slate-900/60 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="default">Default Number</option>
+                        <option value="complexity-asc">Complexity (Easy → Expert)</option>
+                        <option value="complexity-desc">Complexity (Expert → Easy)</option>
+                        <option value="status">Status (Done First)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-6 w-full flex-grow">
+        <div id="tasks-container" class="space-y-8">
+            <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-16 bg-slate-800 rounded-2xl border border-slate-700 mt-4">
+            <div class="bg-slate-700/50 text-slate-400 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center mb-4">
+                <i data-lucide="search-x" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-200">No matching tasks found</h3>
+            <p class="text-sm text-slate-400 mt-1">Try adjusting your search query or filter options.</p>
+            <button onclick="clearFilters()" class="mt-4 px-4 py-2 bg-indigo-600 text-white text-xs font-medium rounded-xl hover:bg-indigo-700 transition">
+                Clear Filters
+            </button>
+        </div>
+    </main>
+
+    <footer class="bg-slate-800/80 border-t border-slate-700 py-6 mt-auto transition-colors duration-300" id="footer-element">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-400">
+            <p>© 2026 Production Release Manager. All 97 tasks loaded successfully.</p>
+            <div class="flex items-center space-x-4">
+                <span>Data stored locally in browser session</span>
+                <span class="text-slate-600">|</span>
+                <a href="#top" class="text-indigo-400 hover:underline font-medium">Back to top ↑</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Master list of all 97 release tasks categorized exactly as requested with complexity ratings
+        const rawTasksData = [
+            // Critical: fix before release
+            { id: 1, category: "Critical: fix before release", title: "Move the database behind a backend", desc: "Cloudflare Workers, Vercel/Netlify functions, or Node/Express", complexity: "Hard" },
+            { id: 2, category: "Critical: fix before release", title: "Rotate the Turso token and keep it only on the server", desc: "Secure secret keys and prevent exposure in client bundles", complexity: "Medium" },
+            { id: 3, category: "Critical: fix before release", title: "Hash passwords with bcrypt or argon2 on the server", desc: "Never store plaintext credentials", complexity: "Medium" },
+            { id: 4, category: "Critical: fix before release", title: "Do login and sessions on the server", desc: "Use httpOnly, Secure cookies or signed tokens", complexity: "Hard" },
+            { id: 5, category: "Critical: fix before release", title: "Enforce admin checks on the server", desc: "Validate privilege levels on every restricted API call", complexity: "Hard" },
+            { id: 6, category: "Critical: fix before release", title: "Move all money logic to the server using database transactions", desc: "Prevent balance manipulation and race conditions", complexity: "Expert" },
+            { id: 7, category: "Critical: fix before release", title: "Add an append-only ledger table for every balance change", desc: "Maintain full audit trail for all deposits and withdrawals", complexity: "Hard" },
+            { id: 8, category: "Critical: fix before release", title: "Remove card details from the client and use a payment provider", desc: "Integrate Stripe or similar compliant gateway", complexity: "Hard" },
+            { id: 9, category: "Critical: fix before release", title: "Enforce IP bans on the server using the request IP", desc: "Block malicious actors at the routing layer", complexity: "Medium" },
+            { id: 10, category: "Critical: fix before release", title: "Rate-limit logins, signups, messages, reports and listing creation", desc: "Protect endpoints against brute-force and spam on the server", complexity: "Medium" },
+            { id: 11, category: "Critical: fix before release", title: "Escape every innerHTML use to stop XSS", desc: "Sanitize user inputs and rendered content thoroughly", complexity: "Medium" },
+            { id: 12, category: "Critical: fix before release", title: "Add a Content-Security-Policy header", desc: "Mitigate injection vulnerabilities and restrict script sources", complexity: "Medium" },
+            { id: 13, category: "Critical: fix before release", title: "Validate all fields on the server", desc: "Check length, type, and allowed values rigorously", complexity: "Medium" },
+            { id: 14, category: "Critical: fix before release", title: "Cap image sizes and check file types on upload", desc: "Prevent oversized payloads and malicious file execution", complexity: "Easy" },
+
+            // Legal and trust
+            { id: 15, category: "Legal and trust", title: "Fill in the Terms of Service text", desc: "Draft and publish clear user agreement policies", complexity: "Easy" },
+            { id: 16, category: "Legal and trust", title: "Fill in the Help text", desc: "Provide comprehensive user assistance documentation", complexity: "Easy" },
+            { id: 17, category: "Legal and trust", title: "Fill in the Copyright text", desc: "Add valid copyright and ownership notices", complexity: "Easy" },
+            { id: 18, category: "Legal and trust", title: "Add a Privacy Policy", desc: "Detail data collection, usage, and user rights", complexity: "Medium" },
+            { id: 19, category: "Legal and trust", title: "Add a cookie notice for EU users", desc: "GDPR compliant cookie consent banner and policy", complexity: "Easy" },
+            { id: 20, category: "Legal and trust", title: "Set a minimum age rule", desc: "Enforce age restrictions during registration", complexity: "Easy" },
+            { id: 21, category: "Legal and trust", title: "State that you are not affiliated with Roblox or the game developers", desc: "Clear legal disclaimer regarding third-party IPs", complexity: "Easy" },
+            { id: 22, category: "Legal and trust", title: "Check each game's rules on trading items for real money", desc: "Ensure compliance with developer Terms of Service", complexity: "Medium" },
+            { id: 23, category: "Legal and trust", title: "Write a refund and dispute policy", desc: "Define rules for transaction cancellations and chargebacks", complexity: "Medium" },
+            { id: 24, category: "Legal and trust", title: "Check the legal rules for holding user money in your country", desc: "Verify money transmission and escrow regulations", complexity: "Hard" },
+            { id: 25, category: "Legal and trust", title: "Add a support and legal contact email", desc: "Publish official communication channels for inquiries", complexity: "Easy" },
+
+            // Account safety
+            { id: 26, category: "Account safety", title: "Email verification at signup", desc: "Require confirmation link before account activation", complexity: "Medium" },
+            { id: 27, category: "Account safety", title: "\"Forgot password\" with a time-limited reset link", desc: "Secure token generation with expiration timestamp", complexity: "Medium" },
+            { id: 28, category: "Account safety", title: "Optional two-factor login (authenticator app)", desc: "TOTP support via Google Authenticator or Authy", complexity: "Hard" },
+            { id: 29, category: "Account safety", title: "Require two-factor for admins and middlemen", desc: "Mandatory 2FA enforcement for high-privilege roles", complexity: "Medium" },
+            { id: 30, category: "Account safety", title: "Strong password rules", desc: "Enforce minimum length, symbols, numbers, and case requirements", complexity: "Easy" },
+            { id: 31, category: "Account safety", title: "Limit failed login attempts", desc: "Temporary account lockout after repeated bad passwords", complexity: "Medium" },
+            { id: 32, category: "Account safety", title: "\"Log out of all devices\"", desc: "Invalidate all active sessions instantly from profile settings", complexity: "Medium" },
+            { id: 33, category: "Account safety", title: "List of active sessions", desc: "Display IP, device, and last active time for logged-in sessions", complexity: "Medium" },
+            { id: 34, category: "Account safety", title: "Email alerts for password, email or payout-detail changes", desc: "Security notification sent to registered email immediately", complexity: "Medium" },
+            { id: 35, category: "Account safety", title: "Block disposable email domains", desc: "Reject burner emails during registration", complexity: "Easy" },
+            { id: 36, category: "Account safety", title: "Limit accounts per person", desc: "Fingerprint or verification checks to prevent multi-accounting", complexity: "Hard" },
+            { id: 37, category: "Account safety", title: "Separate, more protected admin login", desc: "Isolated routing and enhanced auth for administrative panel", complexity: "Hard" },
+
+            // Scam and trade safety
+            { id: 38, category: "Scam and trade safety", title: "Show account age, completed deals and rating on every listing and chat", desc: "Provide transparent seller reputation metrics", complexity: "Medium" },
+            { id: 39, category: "Scam and trade safety", title: "\"New account\" warning for young or low-activity accounts", desc: "Prominent banner alerting buyers of risk", complexity: "Easy" },
+            { id: 40, category: "Scam and trade safety", title: "Warn when someone shares links or asks to move to Discord or DMs", desc: "Automatic chat detection and safety popup", complexity: "Medium" },
+            { id: 41, category: "Scam and trade safety", title: "Blur or filter external links in chat", desc: "Prevent phishing and off-platform redirection", complexity: "Medium" },
+            { id: 42, category: "Scam and trade safety", title: "Warn on words like \"password\", \"code\" and \"cashapp\" in chat", desc: "Keyword flagging to catch social engineering", complexity: "Medium" },
+            { id: 43, category: "Scam and trade safety", title: "Auto-release timer for held money", desc: "Release escrow funds automatically if no dispute is opened", complexity: "Hard" },
+            { id: 44, category: "Scam and trade safety", title: "Admin dispute path", desc: "Structured workflow for handling trade disagreements", complexity: "Hard" },
+            { id: 45, category: "Scam and trade safety", title: "Require proof (screenshots) for disputes", desc: "File upload mechanism during dispute submission", complexity: "Medium" },
+            { id: 46, category: "Scam and trade safety", title: "Keep chat history available to admins for disputes", desc: "Full message transcript access for mediation", complexity: "Medium" },
+            { id: 47, category: "Scam and trade safety", title: "Daily or weekly withdrawal limits for new accounts", desc: "Financial safeguards against compromised new accounts", complexity: "Medium" },
+            { id: 48, category: "Scam and trade safety", title: "Delay on first withdrawals", desc: "Mandatory holding period for initial cashouts", complexity: "Medium" },
+            { id: 49, category: "Scam and trade safety", title: "Auto-flag many accounts from one IP", desc: "Suspicious cluster detection for fraud prevention", complexity: "Hard" },
+            { id: 50, category: "Scam and trade safety", title: "Auto-flag rapid deposits and withdrawals", desc: "Heuristic monitoring for laundering patterns", complexity: "Hard" },
+            { id: 51, category: "Scam and trade safety", title: "Auto-flag the same item re-listed at very different prices", desc: "Anomaly detection for price manipulation", complexity: "Hard" },
+            { id: 52, category: "Scam and trade safety", title: "Middleman verification badge process", desc: "Application and vetting workflow for trusted middlemen", complexity: "Medium" },
+            { id: 53, category: "Scam and trade safety", title: "Way to report a middleman", desc: "Dedicated reporting channel for staff misconduct", complexity: "Easy" },
+
+            // Admin and moderation
+            { id: 54, category: "Admin and moderation", title: "Audit log of every admin action (who, when, why)", desc: "Immutable record of all staff operations", complexity: "Hard" },
+            { id: 55, category: "Admin and moderation", title: "Roles with different permissions (moderator, middleman, admin)", desc: "Granular access control matrix", complexity: "Hard" },
+            { id: 56, category: "Admin and moderation", title: "Reports queue with statuses", desc: "Dashboard to track, assign, and resolve user reports", complexity: "Medium" },
+            { id: 57, category: "Admin and moderation", title: "Note field and resolved history on reports", desc: "Internal staff notes and closure logs", complexity: "Medium" },
+            { id: 58, category: "Admin and moderation", title: "Bulk-moderation view", desc: "Users, deals, reports, IPs, chat history in one unified place", complexity: "Hard" },
+            { id: 59, category: "Admin and moderation", title: "Automatic temporary mutes or slowdowns for chat spam", desc: "Rate-limiting chat senders algorithmically", complexity: "Medium" },
+
+            // Reliability
+            { id: 60, category: "Reliability", title: "Automatic daily database backups", desc: "Scheduled snapshot retention policy", complexity: "Medium" },
+            { id: 61, category: "Reliability", title: "Test a backup restore", desc: "Validate disaster recovery documentation and process", complexity: "Hard" },
+            { id: 62, category: "Reliability", title: "Error logging (Sentry or similar)", desc: "Real-time exception tracking and stack traces", complexity: "Easy" },
+            { id: 63, category: "Reliability", title: "Uptime monitoring with phone alerts", desc: "External health checks via Pingdom, BetterStack, etc.", complexity: "Easy" },
+            { id: 64, category: "Reliability", title: "Maintenance mode switch for admins", desc: "Global toggle with custom splash screen for deployments", complexity: "Easy" },
+            { id: 65, category: "Reliability", title: "Staging copy of the site and database", desc: "Isolated environment for testing updates before production", complexity: "Hard" },
+            { id: 66, category: "Reliability", title: "Paginate long lists", desc: "Server-side pagination for listings, chats, and audit logs", complexity: "Medium" },
+            { id: 67, category: "Reliability", title: "Replace polling with websockets or server-sent events", desc: "Real-time updates for chat, offers, and notifications", complexity: "Expert" },
+            { id: 68, category: "Reliability", title: "Compress and resize uploaded images", desc: "Server-side thumbnail generation and optimization", complexity: "Medium" },
+            { id: 69, category: "Reliability", title: "Stop storing images in the database", desc: "Migrate binary assets to object storage (S3 / R2)", complexity: "Medium" },
+
+            // Features users will want
+            { id: 70, category: "Features users will want", title: "Search", desc: "Full-text item and user search capabilities", complexity: "Medium" },
+            { id: 71, category: "Features users will want", title: "Filters (category, price range, rarity, game)", desc: "Granular faceted search sidebar", complexity: "Medium" },
+            { id: 72, category: "Features users will want", title: "Sort (newest, price low to high, price high to low)", desc: "Multi-option listing sorting", complexity: "Easy" },
+            { id: 73, category: "Features users will want", title: "Favorites or watchlist", desc: "Save items for quick access and price tracking", complexity: "Easy" },
+            { id: 74, category: "Features users will want", title: "Notification when a watched item is listed", desc: "Alert users matching their watchlist criteria", complexity: "Medium" },
+            { id: 75, category: "Features users will want", title: "Item value or price history", desc: "Chart past sales and price trends", complexity: "Hard" },
+            { id: 76, category: "Features users will want", title: "Push, email or Discord notifications for messages, offers and deals", desc: "Multi-channel notification delivery", complexity: "Hard" },
+            { id: 77, category: "Features users will want", title: "\"Report this listing\" button on every item", desc: "Quick reporting trigger for marketplace moderation", complexity: "Easy" },
+            { id: 78, category: "Features users will want", title: "\"Report this user\" button on every profile", desc: "User accountability reporting mechanism", complexity: "Easy" },
+            { id: 79, category: "Features users will want", title: "Profile badges (Verified, Middleman, Top Seller)", desc: "Visual recognition icons for trusted accounts", complexity: "Easy" },
+            { id: 80, category: "Features users will want", title: "Total deals shown on profiles", desc: "Aggregate completed transaction counters", complexity: "Easy" },
+            { id: 81, category: "Features users will want", title: "User block list", desc: "Prevent unwanted messages and trade offers from specific users", complexity: "Medium" },
+            { id: 82, category: "Features users will want", title: "Counter-offers on trade offers", desc: "Negotiation flow allowing modified counter-proposals", complexity: "Hard" },
+            { id: 83, category: "Features users will want", title: "Quick replies in chat", desc: "Preset message buttons for fast communication", complexity: "Easy" },
+            { id: 84, category: "Features users will want", title: "Dark and light theme toggle", desc: "User preference styling with Tailwind dark mode support", complexity: "Medium" },
+            { id: 85, category: "Features users will want", title: "Mobile layout polish on every page", desc: "Responsive design audit and touch target optimization", complexity: "Medium" },
+            { id: 86, category: "Features users will want", title: "Onboarding tour for first-time visitors", desc: "Guided walkthrough for new platform users", complexity: "Medium" },
+            { id: 87, category: "Features users will want", title: "FAQ page", desc: "Answers to common marketplace questions", complexity: "Easy" },
+            { id: 88, category: "Features users will want", title: "Multi-language support", desc: "Localization framework for international users", complexity: "Hard" },
+            { id: 89, category: "Features users will want", title: "Referral system with rewards", desc: "Invite links and bonus credits for growth", complexity: "Medium" },
+            { id: 90, category: "Features users will want", title: "Public \"recent completed trades\" feed", desc: "Live ticker of successful marketplace deals", complexity: "Medium" },
+
+            // Business and growth
+            { id: 91, category: "Business and growth", title: "Clear fee structure shown before every deal", desc: "Transparent marketplace commission breakdown", complexity: "Easy" },
+            { id: 92, category: "Business and growth", title: "Discord server for support and announcements", desc: "Community hub setup and moderation", complexity: "Easy" },
+            { id: 93, category: "Business and growth", title: "Status page for outages", desc: "Public uptime and incident status dashboard (e.g., Atlassian Statuspage)", complexity: "Easy" },
+            { id: 94, category: "Business and growth", title: "Page titles, descriptions and Open Graph share images", desc: "SEO and social media preview optimization", complexity: "Easy" },
+            { id: 95, category: "Business and growth", title: "Real domain with HTTPS", desc: "SSL certificate provisioning and DNS configuration", complexity: "Easy" },
+            { id: 96, category: "Business and growth", title: "Favicon", desc: "Browser tab brand iconography", complexity: "Easy" },
+            { id: 97, category: "Business and growth", title: "Privacy-respecting analytics (Plausible, Umami)", desc: "Lightweight, cookie-free visitor analytics", complexity: "Easy" }
+        ];
+
+        // State Management
+        let tasksState = {};
+        let currentTheme = 'gray'; // 'gray' (dark slate gray) or 'white' (light off-white)
+
+        // Complexity Weight Map for sorting
+        const complexityWeight = {
+            "Easy": 1,
+            "Medium": 2,
+            "Hard": 3,
+            "Expert": 4
+        };
+
+        // Theme Switcher Logic
+        function toggleTheme() {
+            if (currentTheme === 'gray') {
+                setTheme('white');
+            } else {
+                setTheme('gray');
+            }
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('release_tasks_theme_v1', theme);
+            const bodyEl = document.getElementById('body-element');
+            const headerEl = document.getElementById('header-element');
+            const statsCard = document.getElementById('stats-card');
+            const controlsCard = document.getElementById('controls-card');
+            const footerEl = document.getElementById('footer-element');
+            const themeText = document.getElementById('theme-text');
+            const themeIcon = document.getElementById('theme-icon');
+            const searchInput = document.getElementById('search-input');
+            const catFilter = document.getElementById('category-filter');
+            const statusFilter = document.getElementById('status-filter');
+            const compFilter = document.getElementById('complexity-filter');
+            const sortSelect = document.getElementById('sort-select');
+
+            if (theme === 'white') {
+                // White Theme (Clean light gray / off-white mode)
+                bodyEl.className = "bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300";
+                headerEl.className = "bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-sm transition-colors duration-300";
+                statsCard.className = "bg-white rounded-2xl p-6 border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-6 transition-colors duration-300";
+                controlsCard.className = "bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-4 justify-between items-center transition-colors duration-300";
+                footerEl.className = "bg-white border-t border-slate-200 py-6 mt-auto transition-colors duration-300";
+                
+                themeText.innerText = "Gray Theme";
+                themeIcon.setAttribute('data-lucide', 'moon');
+
+                searchInput.className = "w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 text-slate-800 placeholder-slate-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition";
+                catFilter.className = "bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+                statusFilter.className = "bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+                compFilter.className = "bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+                sortSelect.className = "bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+            } else {
+                // Gray Theme (Dark slate gray mode - Default)
+                bodyEl.className = "bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300";
+                headerEl.className = "bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-30 shadow-sm transition-colors duration-300";
+                statsCard.className = "bg-slate-800/90 backdrop-blur rounded-2xl p-6 border border-slate-700/60 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-6 transition-colors duration-300";
+                controlsCard.className = "bg-slate-800/90 backdrop-blur rounded-2xl p-4 border border-slate-700/60 shadow-sm flex flex-col lg:flex-row gap-4 justify-between items-center transition-colors duration-300";
+                footerEl.className = "bg-slate-800/80 border-t border-slate-700 py-6 mt-auto transition-colors duration-300";
+                
+                themeText.innerText = "White Theme";
+                themeIcon.setAttribute('data-lucide', 'sun');
+
+                searchInput.className = "w-full pl-10 pr-4 py-2 bg-slate-900/60 border border-slate-700 text-slate-100 placeholder-slate-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-slate-900 transition";
+                catFilter.className = "bg-slate-900/60 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+                statusFilter.className = "bg-slate-900/60 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+                compFilter.className = "bg-slate-900/60 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+                sortSelect.className = "bg-slate-900/60 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+            }
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+            renderTasks();
+        }
+
+        // Initialize LocalStorage & Theme
+        function initStorage() {
+            const savedState = localStorage.getItem('release_tasks_state_v1');
+            if (savedState) {
+                try {
+                    tasksState = JSON.parse(savedState);
+                } catch (e) {
+                    tasksState = {};
+                }
+            }
+            rawTasksData.forEach(task => {
+                if (!tasksState[task.id]) {
+                    tasksState[task.id] = 'todo';
+                }
+            });
+            saveStorage();
+
+            const savedTheme = localStorage.getItem('release_tasks_theme_v1');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            } else {
+                setTheme('gray'); // Default to gray theme
+            }
+        }
+
+        function saveStorage() {
+            localStorage.setItem('release_tasks_state_v1', JSON.stringify(tasksState));
+            updateDashboardStats();
+        }
+
+        function updateTaskStatus(id, newStatus) {
+            tasksState[id] = newStatus;
+            saveStorage();
+            renderTasks();
+        }
+
+        function resetAllTasks() {
+            if (confirm("Are you sure you want to reset all task statuses to 'To Do'?")) {
+                Object.keys(tasksState).forEach(id => {
+                    tasksState[id] = 'todo';
+                });
+                saveStorage();
+                renderTasks();
+            }
+        }
+
+        function exportData() {
+            const exportObj = rawTasksData.map(t => ({
+                id: t.id,
+                category: t.category,
+                title: t.title,
+                complexity: t.complexity,
+                status: tasksState[t.id] || 'todo'
+            }));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "release_tasks_export.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function updateDashboardStats() {
+            const total = rawTasksData.length;
+            let todoCount = 0;
+            let progCount = 0;
+            let doneCount = 0;
+            let compEasy = 0;
+            let compMed = 0;
+            let compHard = 0;
+            let compExpert = 0;
+
+            rawTasksData.forEach(t => {
+                const status = tasksState[t.id] || 'todo';
+                if (status === 'todo') todoCount++;
+                if (status === 'in-progress') progCount++;
+                if (status === 'done') doneCount++;
+
+                if (t.complexity === 'Easy') compEasy++;
+                if (t.complexity === 'Medium') compMed++;
+                if (t.complexity === 'Hard') compHard++;
+                if (t.complexity === 'Expert') compExpert++;
+            });
+
+            const percent = Math.round((doneCount / total) * 100);
+
+            document.getElementById('percent-text').innerText = percent + '%';
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('counts-text').innerText = `${doneCount} of ${total} tasks completed`;
+
+            document.getElementById('todo-count').innerText = todoCount;
+            document.getElementById('progress-count').innerText = progCount;
+            document.getElementById('done-count').innerText = doneCount;
+
+            document.getElementById('comp-easy').innerText = compEasy;
+            document.getElementById('comp-med').innerText = compMed;
+            document.getElementById('comp-hard').innerText = compHard;
+            document.getElementById('comp-expert').innerText = compExpert;
+        }
+
+        function populateCategoryDropdown() {
+            const categories = [...new Set(rawTasksData.map(t => t.category))];
+            const select = document.getElementById('category-filter');
+            select.innerHTML = '<option value="all">All Categories</option>';
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                select.appendChild(opt);
+            });
+        }
+
+        function clearFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('category-filter').value = 'all';
+            document.getElementById('status-filter').value = 'all';
+            document.getElementById('complexity-filter').value = 'all';
+            document.getElementById('sort-select').value = 'default';
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            const selectedCategory = document.getElementById('category-filter').value;
+            const selectedStatus = document.getElementById('status-filter').value;
+            const selectedComplexity = document.getElementById('complexity-filter').value;
+            const sortMode = document.getElementById('sort-select').value;
+
+            const container = document.getElementById('tasks-container');
+            const emptyState = document.getElementById('empty-state');
+            container.innerHTML = '';
+
+            // Filter data
+            let filtered = rawTasksData.filter(t => {
+                const status = tasksState[t.id] || 'todo';
+                const matchesSearch = t.title.toLowerCase().includes(searchQuery) || t.desc.toLowerCase().includes(searchQuery) || t.id.toString() === searchQuery;
+                const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
+                const matchesStatus = selectedStatus === 'all' || status === selectedStatus;
+                const matchesComplexity = selectedComplexity === 'all' || t.complexity === selectedComplexity;
+                return matchesSearch && matchesCategory && matchesStatus && matchesComplexity;
+            });
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // Sort data
+            filtered.sort((a, b) => {
+                if (sortMode === 'complexity-asc') {
+                    return complexityWeight[a.complexity] - complexityWeight[b.complexity];
+                } else if (sortMode === 'complexity-desc') {
+                    return complexityWeight[b.complexity] - complexityWeight[a.complexity];
+                } else if (sortMode === 'status') {
+                    const statusA = tasksState[a.id] || 'todo';
+                    const statusB = tasksState[b.id] || 'todo';
+                    const weight = { 'done': 3, 'in-progress': 2, 'todo': 1 };
+                    return weight[statusB] - weight[statusA];
+                } else {
+                    return a.id - b.id;
+                }
+            });
+
+            // Group by Category
+            const grouped = {};
+            filtered.forEach(t => {
+                if (!grouped[t.category]) grouped[t.category] = [];
+                grouped[t.category].push(t);
+            });
+
+            // Render groups
+            Object.keys(grouped).forEach(category => {
+                const tasksInCategory = grouped[category];
+                
+                const categorySection = document.createElement('div');
+                
+                // Theme dependent classes for category box
+                if (currentTheme === 'white') {
+                    categorySection.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden';
+                } else {
+                    categorySection.className = 'bg-slate-800/90 backdrop-blur rounded-2xl border border-slate-700/60 shadow-sm overflow-hidden';
+                }
+                
+                const completedInCat = tasksInCategory.filter(t => (tasksState[t.id] || 'todo') === 'done').length;
+                const totalInCat = tasksInCategory.length;
+                
+                let headerHtml = `
+                    <div class="${currentTheme === 'white' ? 'bg-slate-50 border-slate-200 text-slate-800' : 'bg-slate-800/80 border-slate-700 text-slate-100'} px-6 py-4 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div class="flex items-center space-x-3">
+                            <h2 class="text-base font-bold tracking-tight">${category}</h2>
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${currentTheme === 'white' ? 'bg-slate-200 text-slate-700' : 'bg-slate-700 text-slate-300'}">${totalInCat} tasks</span>
+                        </div>
+                        <span class="text-xs font-medium ${currentTheme === 'white' ? 'text-slate-500' : 'text-slate-400'}">${completedInCat} of ${totalInCat} completed</span>
+                    </div>
+                    <div class="divide-y ${currentTheme === 'white' ? 'divide-slate-100' : 'divide-slate-700/50'}">
+                `;
+
+                tasksInCategory.forEach(t => {
+                    const status = tasksState[t.id] || 'todo';
+                    
+                    let compBadgeClass = "bg-slate-700/50 text-slate-300 border-slate-600";
+                    if (t.complexity === 'Easy') compBadgeClass = currentTheme === 'white' ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+                    if (t.complexity === 'Medium') compBadgeClass = currentTheme === 'white' ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-blue-500/10 text-blue-400 border-blue-500/30";
+                    if (t.complexity === 'Hard') compBadgeClass = currentTheme === 'white' ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-amber-500/10 text-amber-400 border-amber-500/30";
+                    if (t.complexity === 'Expert') compBadgeClass = currentTheme === 'white' ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-rose-500/10 text-rose-400 border-rose-500/30";
+
+                    let inactiveBtn = currentTheme === 'white' ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-slate-700/60 text-slate-300 hover:bg-slate-700';
+
+                    let todoActive = status === 'todo' ? 'bg-amber-500 text-white shadow-sm font-semibold' : inactiveBtn;
+                    let progActive = status === 'in-progress' ? 'bg-blue-500 text-white shadow-sm font-semibold' : inactiveBtn;
+                    let doneActive = status === 'done' ? 'bg-emerald-500 text-white shadow-sm font-semibold' : inactiveBtn;
+
+                    let rowBgClass = '';
+                    let titleStyle = '';
+                    let descStyle = '';
+
+                    if (status === 'done') {
+                        if (currentTheme === 'white') {
+                            rowBgClass = 'bg-emerald-50/80 hover:bg-emerald-100/80';
+                            titleStyle = 'line-through text-emerald-900 font-medium';
+                            descStyle = 'text-emerald-700/80';
+                        } else {
+                            rowBgClass = 'bg-emerald-950/30 hover:bg-emerald-950/50';
+                            titleStyle = 'line-through text-emerald-200 font-medium';
+                            descStyle = 'text-emerald-400/80';
+                        }
+                    } else {
+                        rowBgClass = currentTheme === 'white' ? 'hover:bg-slate-50/80' : 'hover:bg-slate-700/20';
+                        titleStyle = currentTheme === 'white' ? 'text-slate-900' : 'text-slate-100';
+                        descStyle = currentTheme === 'white' ? 'text-slate-500' : 'text-slate-400';
+                    }
+
+                    headerHtml += `
+                        <div class="p-4 sm:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition ${rowBgClass}">
+                            <div class="flex items-start space-x-3.5 flex-grow">
+                                <span class="flex-shrink-0 text-xs font-mono font-bold ${currentTheme === 'white' ? 'text-slate-400 bg-slate-100' : 'text-slate-400 bg-slate-700/50'} px-2 py-1 rounded-lg mt-0.5">#${t.id}</span>
+                                <div>
+                                    <div class="flex flex-wrap items-center gap-2 mb-1">
+                                        <h3 class="text-sm font-semibold ${titleStyle}">${t.title}</h3>
+                                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-md border ${compBadgeClass}">${t.complexity}</span>
+                                    </div>
+                                    <p class="text-xs ${descStyle}">${t.desc}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Buttons -->
+                            <div class="flex items-center space-x-1.5 self-end md:self-center flex-shrink-0">
+                                <button onclick="updateTaskStatus(${t.id}, 'todo')" title="Mark as To Do" class="px-3 py-1.5 text-xs rounded-xl transition ${todoActive}">
+                                    To Do
+                                </button>
+                                <button onclick="updateTaskStatus(${t.id}, 'in-progress')" title="Mark as In Progress" class="px-3 py-1.5 text-xs rounded-xl transition ${progActive}">
+                                    In Progress
+                                </button>
+                                <button onclick="updateTaskStatus(${t.id}, 'done')" title="Mark as Done" class="px-3 py-1.5 text-xs rounded-xl transition ${doneActive}">
+                                    Done
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                headerHtml += `</div>`;
+                categorySection.innerHTML = headerHtml;
+                container.appendChild(categorySection);
+            });
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        window.onload = function() {
+            initStorage();
+            populateCategoryDropdown();
+            renderTasks();
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        };
+    </script>
+</body>
+</html>
