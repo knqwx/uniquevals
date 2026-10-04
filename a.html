@@ -511,7 +511,7 @@
                 if (t.complexity === 'Expert') compExpert++;
             });
 
-            const percent = Math.round((doneCount / total) * 100);
+            const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
             document.getElementById('percent-text').innerText = percent + '%';
             document.getElementById('progress-bar').style.width = percent + '%';
@@ -548,32 +548,49 @@
             renderTasks();
         }
 
+        function filterTasks() {
+            renderTasks();
+        }
+
         function renderTasks() {
-            const searchQuery = document.getElementById('search-input').value.toLowerCase();
-            const selectedCategory = document.getElementById('category-filter').value;
-            const selectedStatus = document.getElementById('status-filter').value;
-            const selectedComplexity = document.getElementById('complexity-filter').value;
-            const sortMode = document.getElementById('sort-select').value;
+            const searchInputEl = document.getElementById('search-input');
+            const categoryFilterEl = document.getElementById('category-filter');
+            const statusFilterEl = document.getElementById('status-filter');
+            const complexityFilterEl = document.getElementById('complexity-filter');
+            const sortSelectEl = document.getElementById('sort-select');
+
+            const searchQuery = searchInputEl ? searchInputEl.value.toLowerCase().trim() : '';
+            const selectedCategory = categoryFilterEl ? categoryFilterEl.value : 'all';
+            const selectedStatus = statusFilterEl ? statusFilterEl.value : 'all';
+            const selectedComplexity = complexityFilterEl ? complexityFilterEl.value : 'all';
+            const sortMode = sortSelectEl ? sortSelectEl.value : 'default';
 
             const container = document.getElementById('tasks-container');
             const emptyState = document.getElementById('empty-state');
+            
+            if (!container) return;
             container.innerHTML = '';
 
             // Filter data
             let filtered = rawTasksData.filter(t => {
                 const status = tasksState[t.id] || 'todo';
-                const matchesSearch = t.title.toLowerCase().includes(searchQuery) || t.desc.toLowerCase().includes(searchQuery) || t.id.toString() === searchQuery;
+                const matchesSearch = searchQuery === '' || 
+                    t.title.toLowerCase().includes(searchQuery) || 
+                    t.desc.toLowerCase().includes(searchQuery) || 
+                    t.id.toString() === searchQuery;
+                
                 const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
                 const matchesStatus = selectedStatus === 'all' || status === selectedStatus;
                 const matchesComplexity = selectedComplexity === 'all' || t.complexity === selectedComplexity;
+
                 return matchesSearch && matchesCategory && matchesStatus && matchesComplexity;
             });
 
             if (filtered.length === 0) {
-                emptyState.classList.remove('hidden');
+                if (emptyState) emptyState.classList.remove('hidden');
                 return;
             } else {
-                emptyState.classList.add('hidden');
+                if (emptyState) emptyState.classList.add('hidden');
             }
 
             // Sort data
@@ -605,7 +622,6 @@
                 
                 const categorySection = document.createElement('div');
                 
-                // Theme dependent classes for category box
                 if (currentTheme === 'white') {
                     categorySection.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden';
                 } else {
